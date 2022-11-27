@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug ExaltationForge",
+            "program": "${workspaceFolder:ExaltationForge}/.build/debug/ExaltationForge",
+            "args": [],
+            "cwd": "${workspaceFolder:ExaltationForge}",
+            "preLaunchTask": "swift: Build Debug ExaltationForge"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Release ExaltationForge",
+            "program": "${workspaceFolder:ExaltationForge}/.build/release/ExaltationForge",
+            "args": [],
+            "cwd": "${workspaceFolder:ExaltationForge}",
+            "preLaunchTask": "swift: Build Release ExaltationForge"
+        }
+    ]
+}
