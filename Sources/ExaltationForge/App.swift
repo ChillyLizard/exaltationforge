@@ -5,7 +5,7 @@ import Foundation
 @main
 struct TokamakApp: App {
     var body: some Scene {
-        WindowGroup("Tokamak App") {
+        WindowGroup("Exaltation Forge") {
             ContentView()
         }
     }
@@ -26,6 +26,7 @@ struct ContentView: View {
     @State private var corePrice = ""
 
     var body: some View {
+        
         VStack(alignment: .leading, spacing: 20) {
             HStack {
                 Text("average price:")
@@ -66,16 +67,16 @@ struct ContentView: View {
                 Text(String(format: "%.0f", result.expectedCost))
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .font(.system(.body, design: .monospaced))
-            }
+            }.frame(maxWidth: 400)
             HStack {
-                Text("Minimun Cost:")
+                Text("Minimum Cost:")
                 Spacer()
                 Text(String(result.minCost))
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .font(.system(.body, design: .monospaced))
-            }
+            }.frame(maxWidth: 400)
             Text(self.errorMsg).foregroundColor(.red)
-        }.padding(50).frame(maxWidth: 500)
+        }.padding()
     }
 
     private func calculateCost() -> Result {
