@@ -163,7 +163,7 @@ struct ContentView: View {
 
         // expected cost for each fusion:
         // lim x->infinity [ integral 0->x [ (1/2)^x * v ] ] = v/log(2)
-        let expectedCost = expectedLoss / log(inverseProbability)
+        let expectedCost = (expectedLoss / log(inverseProbability)) + Double(minCost)
 
         return Result(minCost: minCost, expectedCost: expectedCost)
     }
