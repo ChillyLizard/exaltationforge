@@ -23,6 +23,7 @@ struct ContentView: View {
     @State private var selectedTier = 1
     @State private var errorMsg = ""
     @State private var isUsingCores = false
+    @State private var isUsingSecondCore = false
     @State private var corePrice = ""
 
     var body: some View {
@@ -39,6 +40,11 @@ struct ContentView: View {
             HStack {
                 Text("Use Cores:")
                 Toggle("", isOn: self.$isUsingCores)
+                Text("Use aditional Core:")
+                Toggle("", isOn: self.$isUsingSecondCore)
+            }
+
+            HStack {
                 Text("core price:")
                 TextField(
                     "",
@@ -121,6 +127,9 @@ struct ContentView: View {
         let numberItems =  1 << tier
         var numberOfFusions = numberItems / 2
 
+        let coreCost = UInt64(self.corePrice) ?? 0
+        let tierReductionChance = self.isUsingSecondCore ? 0.5 : 1
+
         var expectedLoss: Double = 0
         var minCost: UInt64 = 0
 
@@ -138,11 +147,13 @@ struct ContentView: View {
                 tier: currentTier
             )
 
-            fusionCost += self.isUsingCores ? UInt64(self.corePrice)! : 0
+            fusionCost += self.isUsingCores ? coreCost : 0
+            fusionCost += self.isUsingSecondCore ? coreCost : 0
 
             minCost +=  fusionCost * UInt64(numberOfFusions)
 
-            expectedLoss += Double(fusionCost)  + costOfWeapon(classification, currentTier - 1).expectedCost
+            expectedLoss += Double(fusionCost)  + 
+                costOfWeapon(classification, currentTier - 1).expectedCost * tierReductionChance
 
 
             numberOfFusions = numberOfFusions / 2
