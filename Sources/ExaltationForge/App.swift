@@ -111,40 +111,34 @@ struct ContentView: View {
 
 
         return self.costOfWeapon(self.selectedClass, self.selectedTier)
-
-        // let formatter = NumberFormatter()
-        // formatter.numberStyle = .decimal
-        // let a = formatter.string(from: NSNumber(value: result)) ?? "error"
     }
 
     private func costOfWeapon(_ classification: Int, _ tier: Int) -> Result {
         let avgPrice = UInt64(self.avgPrice)!
 
+        if tier < 0 {
+            return Result(minCost: 0, expectedCost: 0)
+        }
+
         if tier == 0 {
             return Result(minCost: avgPrice, expectedCost: Double(avgPrice))
         }
 
-        let numberItems =  1 << tier
-        var numberOfFusions = numberItems / 2
+        let numberOfItems =  1 << tier
 
         let coreCost = UInt64(self.corePrice) ?? 0
         let tierReductionChance = self.isUsingSecondCore ? 0.5 : 1
 
         var expectedLoss: Double = 0
-        var minCost: UInt64 = 0
+        var minCost = UInt64(numberOfItems) * avgPrice
 
-        minCost += UInt64(numberItems) * avgPrice
+        for desiredTier in 1...tier {
 
-        // 0 0 0 0 0 0 0 0 
-        //  1   1   1   1
-        //    2       2
-        //        3
+            let numberOfFusions = numberOfItems >> desiredTier
 
-        for currentTier in 1...tier {
-
-            var fusionCost = costForTier(
+            var fusionCost = costForFusion(
                 classification: classification,
-                tier: currentTier
+                tier: desiredTier
             )
 
             fusionCost += self.isUsingCores ? coreCost : 0
@@ -152,11 +146,12 @@ struct ContentView: View {
 
             minCost +=  fusionCost * UInt64(numberOfFusions)
 
-            expectedLoss += Double(fusionCost)  + 
-                costOfWeapon(classification, currentTier - 1).expectedCost * tierReductionChance
+            let costOfTierDecrease = costOfWeapon(classification, desiredTier - 1).expectedCost -
+                costOfWeapon(classification, desiredTier - 2).expectedCost
 
-
-            numberOfFusions = numberOfFusions / 2
+            let singleFusionExpectedLoss = Double(fusionCost)  + costOfTierDecrease * tierReductionChance
+            
+            expectedLoss += singleFusionExpectedLoss * Double(numberOfFusions)
         }
 
         let inverseProbability: Double = self.isUsingCores ? 5/2 : 2/1 
@@ -168,7 +163,7 @@ struct ContentView: View {
         return Result(minCost: minCost, expectedCost: expectedCost)
     }
 
-    private func costForTier(classification: Int, tier: Int) -> UInt64 {
+    private func costForFusion(classification: Int, tier: Int) -> UInt64 {
         switch(classification, tier){
             case(1, 1):
                 return 25_000
@@ -203,7 +198,7 @@ struct ContentView: View {
             case(4, 10):
                 return 15_000_000_000
             default:
-                return 0
+                fatalError("invalid tier and classification")
         }
     }
 }
