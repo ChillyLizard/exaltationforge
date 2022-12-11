@@ -90,7 +90,12 @@ struct ContentView: View {
         //reset errorMsg
         self.errorMsg = ""
 
-        guard avgPrice != "" else {
+        guard self.avgPrice.count < 16 else {
+            self.errorMsg = "invalid price"
+            return Result(minCost: 0, expectedCost: 0)
+        }
+
+        guard self.avgPrice != "" else {
             return Result(minCost: 0, expectedCost: 0)
         }
 
@@ -99,7 +104,7 @@ struct ContentView: View {
             return Result(minCost: 0, expectedCost: 0)
         }
 
-        if self.isUsingCores && UInt64(self.corePrice) == nil {
+        if self.isUsingCores && (self.corePrice.count >= 16 || UInt64(self.corePrice) == nil) {
             self.errorMsg = "invalid core price"
             return Result(minCost: 0, expectedCost: 0)
         }
@@ -154,11 +159,9 @@ struct ContentView: View {
             expectedLoss += singleFusionExpectedLoss * Double(numberOfFusions)
         }
 
-        let inverseProbability: Double = self.isUsingCores ? 5/2 : 2/1 
+        let costFactor: Double = self.isUsingCores ? 2/3 : 1
 
-        // expected cost for each fusion:
-        // lim x->infinity [ integral 0->x [ (1/2)^x * v ] ] = v/log(2)
-        let expectedCost = (expectedLoss / log(inverseProbability)) + Double(minCost)
+        let expectedCost = (expectedLoss * costFactor) + Double(minCost)
 
         return Result(minCost: minCost, expectedCost: expectedCost)
     }
